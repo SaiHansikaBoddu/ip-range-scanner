@@ -1,0 +1,21 @@
+{
+  "name": "ip-range-scanner-backend",
+  "version": "1.0.0",
+  "description": "Backend API for IP Range Scanner with Windows-compatible ping execution",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "ip-scanner",
+    "network",
+    "ping",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IP Range Scanner | Network Diagnostics Tool</title>
+  <meta name="description" content="Fast, reliable full-stack IPv4 network range scanner for network diagnostics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="shield-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>IP Range Scanner</h1>
+          <p class="subtitle">Full-Stack Network Host Discovery Tool</p>
+        </div>
+      </div>
+      <div class="badge-status online" id="backend-status-indicator">
+        <span class="status-dot"></span>
+        <span id="backend-status-text">Backend: Checking...</span>
+      </div>
+    </header>
+
+    <!-- Authorized Use Warning Banner -->
+    <div class="warning-banner" role="alert">
+      <div class="warning-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="warning-text">
+        <strong>Authorized-Use Notice:</strong> Use this scanner only on your own network or an authorized environment.
+      </div>
+    </div>
+
+    <!-- Main Scanner Card -->
+    <main class="scanner-card">
+      <form id="scan-form" class="scan-form" novalidate>
+        <div class="input-grid">
+          <div class="form-group">
+            <label for="start-ip">
+              <span>Start IP Address</span>
+              <span class="label-hint">(e.g. 192.168.1.1)</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="start-ip" 
+                name="startIp" 
+                placeholder="192.168.1.1" 
+                required 
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="end-ip">
+              <span>End IP Address</span>
+              <span class="label-hint">(e.g. 192.168.1.10)</span>
+            </label>
+            <div class="input-wrapper">
+              <input 
+                type="text" 
+                id="end-ip" 
+                name="endIp" 
+                placeholder="192.168.1.10" 
+                required 
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="presets-row">
+          <span class="preset-label">Quick Presets:</span>
+          <button type="button" class="preset-btn" data-start="127.0.0.1" data-end="127.0.0.1">Localhost (1 Host)</button>
+          <button type="button" class="preset-btn" data-start="127.0.0.1" data-end="127.0.0.5">Local Loopback (5 Hosts)</button>
+          <button type="button" class="preset-btn" data-start="192.168.1.1" data-end="192.168.1.10">Local Subnet (10 Hosts)</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-row">
+          <button type="submit" id="btn-scan" class="btn btn-primary">
+            <span class="btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <span id="scan-btn-text">Scan IP Range</span>
+          </button>
+          <button type="button" id="btn-clear" class="btn btn-secondary">
+            <span class="btn-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </span>
+            <span>Clear Results</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Error Message Area -->
+      <div id="error-container" class="error-container hidden" role="alert">
+        <div class="error-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div id="error-message" class="error-message"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-container" class="loading-container hidden">
+        <div class="scanner-pulse">
+          <div class="pulse-beam"></div>
+        </div>
+        <div class="loading-text-wrapper">
+          <p class="loading-title">Scanning Target IP Range...</p>
+          <p class="loading-subtitle" id="loading-details">Sending ICMP ping requests to discover active hosts</p>
+        </div>
+      </div>
+
+      <!-- Summary Statistics (Hidden initially) -->
+      <div id="stats-container" class="stats-grid hidden">
+        <div class="stat-card">
+          <div class="stat-title">Total Scanned</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card stat-active">
+          <div class="stat-title">Active Hosts</div>
+          <div class="stat-value" id="stat-active">0</div>
+        </div>
+        <div class="stat-card stat-inactive">
+          <div class="stat-title">Inactive / Offline</div>
+          <div class="stat-value" id="stat-inactive">0</div>
+        </div>
+      </div>
+
+      <!-- Results Table Section -->
+      <section class="results-section">
+        <div class="results-header">
+          <h2>Scan Results</h2>
+          <span id="results-count-badge" class="count-badge hidden">0 Hosts</span>
+        </div>
+
+        <div class="table-responsive">
+          <table id="results-table" class="results-table">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-ip">IP Address</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody id="results-body">
+              <tr class="empty-row" id="empty-row">
+                <td colspan="3">
+                  <div class="empty-state">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                      <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                      <line x1="6" y1="6" x2="6.01" y2="6"/>
+                      <line x1="6" y1="18" x2="6.01" y2="18"/>
+                    </svg>
+                    <p>No scan results yet. Enter an IP range above and click <strong>"Scan IP Range"</strong>.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>IP Range Scanner • Windows Compatible • Max 256 Hosts per Scan</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
