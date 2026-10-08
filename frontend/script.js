@@ -3,7 +3,7 @@
  */
 
 // Configuration
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://ip-range-scanner-backend.onrender.com';
 
 // DOM Elements
 const scanForm = document.getElementById('scan-form');
@@ -284,7 +284,7 @@ async function handleScan(e) {
     console.error('Fetch error:', err);
     backendStatusIndicator.className = 'badge-status offline';
     backendStatusText.textContent = 'Backend: Offline';
-    showError('Cannot connect to backend server at http://localhost:5000. Please ensure the backend server is running (npm start).');
+    showError('Cannot connect to the backend server. Please ensure the backend server is running.');
   } finally {
     setLoading(false);
   }
