@@ -51,35 +51,25 @@ function longToIp(long) {
  * Ping a single IP address using Windows-compatible command: ping -n 1 -w 1000 <ip>
  * Returns a Promise resolving to { ip, status: "ACTIVE" | "INACTIVE" | "ERROR" }
  */
-function pingHost(ip) {
+
+      function pingHost(ip) {
   return new Promise((resolve) => {
-    // Windows ping: 1 count (-n 1), 1000ms timeout (-w 1000)
-    const cmd = `ping -n 1 -w 1000 ${ip}`;
+    // Use Linux ping options on Render
+    const cmd = `ping -c 1 -W 1 ${ip}`;
 
     exec(cmd, { timeout: 3000 }, (error, stdout, stderr) => {
       const output = (stdout || '') + (stderr || '');
 
-      // Check for failure phrases common in Windows ping output
-      const isUnreachable =
-        output.includes('Destination host unreachable') ||
-        output.includes('Request timed out') ||
-        output.includes('General failure') ||
-        output.includes('Ping request could not find host') ||
-        output.includes('Transmit failed') ||
-        output.includes('100% loss');
-
-      // Check for successful reply indicator
+      // Linux ping success is indicated by "1 received"
       const hasReply =
-        /Reply from/i.test(output) &&
-        (/TTL=/i.test(output) || /bytes=/i.test(output));
+        /1 received/i.test(output) ||
+        /bytes from/i.test(output);
 
-      if (hasReply && !isUnreachable) {
+      if (hasReply) {
         resolve({ ip, status: 'ACTIVE' });
       } else if (error && !output) {
-        // Unexpected system execution error
         resolve({ ip, status: 'ERROR' });
       } else {
-        // Host did not respond within timeout or is unreachable
         resolve({ ip, status: 'INACTIVE' });
       }
     });
